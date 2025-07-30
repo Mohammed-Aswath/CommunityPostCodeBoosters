@@ -17,7 +17,6 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.4
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
     - name: Deploy to EC2
       run: |
         ssh -o StrictHostKeyChecking=no ec2-user@50.17.105.220 << 'EOF'
@@ -28,3 +27,4 @@ jobs:
           npm run build
           echo "✅ React app built on EC2"
         EOF
+# this is the comment line 
