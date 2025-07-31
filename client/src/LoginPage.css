@@ -29,31 +29,107 @@
 
 .login-box input {
   width: 100%;
-  padding: 0.75rem 1rem;
-  margin: 0.5rem 0;
-  border-radius: 0.5rem;
-  border: 1px solid #ccc;
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-sm) 0;
+  border-radius: var(--radius-lg);
+  border: 2px solid transparent;
+  font-family: var(--font-primary);
   font-size: 1rem;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  backdrop-filter: blur(10px);
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background: rgba(248, 250, 252, 0.9);
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1), 0 4px 12px rgba(8, 145, 178, 0.15);
+}
+
+.login-box input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 .login-box button {
   width: 100%;
-  padding: 0.75rem 1rem;
+  position: relative;
+  padding: var(--space-md) var(--space-lg);
   margin-top: 1rem;
   border: none;
-  background: var(--link-color);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: white;
-  font-weight: bold;
-  font-size: 1rem;
-  border-radius: 0.5rem;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background 0.3s ease;
+  overflow: hidden;
+  transition: all var(--transition-base);
+  text-transform: capitalize;
+  letter-spacing: 0.025em;
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25), 0 1px 6px rgba(8, 145, 178, 0.15);
+}
+
+.login-box button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.login-box button:active::before {
+  width: 300px;
+  height: 300px;
 }
 
 .login-box button:hover {
-  background: #1565c0;
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35), 0 3px 10px rgba(8, 145, 178, 0.25);
+}
+
+.login-box button:focus {
+  outline: none;
+  box-shadow: 
+    0 6px 20px rgba(37, 99, 235, 0.35), 
+    0 3px 10px rgba(8, 145, 178, 0.25),
+    0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.login-box button:active {
+  transform: translateY(-1px) scale(1.01);
+}
+
+/* Dark mode support */
+body.dark .login-box input {
+  background: rgba(17, 25, 40, 0.9);
+  color: var(--text-primary);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+body.dark .login-box input:focus {
+  background: rgba(17, 25, 40, 0.95);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2), 0 4px 12px rgba(8, 145, 178, 0.2);
+}
+
+body.dark .login-box button {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4), 0 2px 8px rgba(8, 145, 178, 0.3);
+}
+
+body.dark .login-box button:hover {
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5), 0 4px 12px rgba(8, 145, 178, 0.4);
 }
 
 @keyframes fadeIn {

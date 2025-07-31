@@ -2,13 +2,16 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function PostPage() {
   const { token, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState(null);
+  
   const [url, setUrl] = useState('');
   const [domain, setDomain] = useState('');
   const [links, setLinks] = useState([]);
@@ -180,12 +183,7 @@ function PostPage() {
     }
   };
 
-  const toggleDomain = (name) => {
-    setExpandedDomains(prev => ({
-      ...prev,
-      [name]: !prev[name]
-    }));
-  };
+  
 
   const groupedLinks = domains.reduce((acc, dom) => {
     acc[dom.name] = links.filter(link => link.domain === dom.name);
@@ -194,90 +192,306 @@ function PostPage() {
 
   return (
     <div className="view-container">
-      <div className="section-title">📌 {editId ? "Edit Link" : "Post Link"}</div>
+      <button 
+        className="button secondary" 
+        onClick={() => navigate('/')}
+        style={{ 
+          alignSelf: 'flex-start', 
+          marginBottom: 'var(--space-lg)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-sm)'
+        }}
+      >
+        ← Back to Home
+      </button>
+      
+      <h1 className="page-title">
+        <span className="emoji">✍️</span>
+        <span>{editId ? "Edit Post" : "Create Post"}</span>
+      </h1>
+      <p className="page-subtitle">Share educational resources with the community</p>
+      
+      <div className="section-divider"></div>
 
-      <div className="link-card" style={{ maxWidth: "500px" }}>
-        <input type="text" placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} style={{ marginBottom: "0.75rem", padding: "0.5rem", width: "100%" }} />
-        <input type="text" placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} style={{ marginBottom: "0.75rem", padding: "0.5rem", width: "100%" }} />
-        <input type="text" placeholder="Optional External URL" value={url} onChange={e => setUrl(e.target.value)} style={{ marginBottom: "0.75rem", padding: "0.5rem", width: "100%" }} />
+      <form className="post-form" style={{ maxWidth: "600px", width: "100%" }}>
+        <input 
+          type="text" 
+          placeholder="Title" 
+          value={title} 
+          onChange={e => setTitle(e.target.value)} 
+        />
+        <textarea 
+          placeholder="Description" 
+          value={description} 
+          onChange={e => setDescription(e.target.value)} 
+          rows="4"
+        />
+        <input 
+          type="text" 
+          placeholder="Optional External URL" 
+          value={url} 
+          onChange={e => setUrl(e.target.value)} 
+        />
         {editId && file === null && (
-          <div style={{ marginBottom: "0.5rem", fontSize: "0.9rem" }}>
-            <em>Existing file will remain unless a new one is selected</em>
+          <div style={{ 
+            marginBottom: "var(--space-sm)", 
+            fontSize: "0.9rem",
+            color: "var(--text-secondary)",
+            fontStyle: "italic"
+          }}>
+            Existing file will remain unless a new one is selected
           </div>
         )}
-        <input type="file" onChange={e => setFile(e.target.files[0])} style={{ marginBottom: "0.75rem" }} />
-        <select value={domain} onChange={e => setDomain(e.target.value)} style={{ marginBottom: "1rem", padding: "0.5rem", width: "100%" }}>
+        <input 
+          type="file" 
+          onChange={e => setFile(e.target.files[0])} 
+        />
+        <select value={domain} onChange={e => setDomain(e.target.value)}>
           <option value="">Select Domain</option>
           {domains.map(d => (
             <option key={d._id} value={d.name}>{d.name}</option>
           ))}
         </select>
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <button className="header button" onClick={handleSubmit}>{editId ? "Update" : "Post"}</button>
+        <div className="button-group">
+          <button 
+            type="button"
+            className="button primary" 
+            onClick={handleSubmit}
+          >
+            {editId ? "Update Post" : "Create Post"}
+          </button>
           {editId && (
-            <button className="header button" onClick={() => {
-              setEditId(null); setTitle(''); setDescription(''); setUrl(''); setFile(null); setDomain('');
-            }}>Cancel</button>
+            <button 
+              type="button"
+              className="button secondary" 
+              onClick={() => {
+                setEditId(null); setTitle(''); setDescription(''); setUrl(''); setFile(null); setDomain('');
+              }}
+            >
+              Cancel
+            </button>
           )}
-          <button className="header button" onClick={logout}>Logout</button>
+          <button 
+            type="button"
+            className="button danger" 
+            onClick={logout}
+          >
+            Logout
+          </button>
+        </div>
+      </form>
+
+      <div className="section-divider"></div>
+      
+      <h2 className="section-title">🏷️ Manage Domains</h2>
+      
+      <div className="post-form" style={{ maxWidth: "600px", width: "100%" }}>
+        <div style={{ display: "flex", gap: "var(--space-md)" }}>
+          <input 
+            type="text" 
+            placeholder="New Domain Name" 
+            value={newDomain} 
+            onChange={e => setNewDomain(e.target.value)} 
+            style={{ flexGrow: 1 }} 
+          />
+          <button 
+            type="button"
+            className="button primary" 
+            onClick={handleAddDomain}
+          >
+            Add Domain
+          </button>
+        </div>
+        
+        <div style={{ marginTop: "var(--space-lg)" }}>
+          {domains.map(d => (
+            <div 
+              key={d._id} 
+              className="link-card" 
+              style={{ 
+                marginBottom: "var(--space-md)",
+                maxWidth: "100%"
+              }}
+            >
+              {editingDomain === d._id ? (
+                <div style={{ 
+                  display: "flex", 
+                  gap: "var(--space-lg)", 
+                  alignItems: "center",
+                  width: "100%"
+                }}>
+                  <input 
+                    type="text" 
+                    value={editingDomainName} 
+                    onChange={e => setEditingDomainName(e.target.value)}
+                    style={{ flex: "1" }}
+                  />
+                  <div className="button-group" style={{ 
+                    margin: 0, 
+                    justifyContent: 'flex-end',
+                    flexShrink: 0
+                  }}>
+                    <button 
+                      type="button"
+                      className="button secondary" 
+                      onClick={() => handleEditDomain(d._id)}
+                    >
+                      Save
+                    </button>
+                    <button 
+                      type="button"
+                      className="button secondary" 
+                      onClick={() => setEditingDomain(null)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ 
+                  display: "flex", 
+                  justifyContent: "space-between", 
+                  alignItems: "center",
+                  width: "100%",
+                  gap: "var(--space-lg)"
+                }}>
+                  <span style={{ 
+                    fontWeight: "600", 
+                    color: "var(--text-primary)",
+                    flex: "1"
+                  }}>{d.name}</span>
+                  <div className="button-group" style={{ 
+                    margin: 0, 
+                    justifyContent: 'flex-end',
+                    flexShrink: 0
+                  }}>
+                    <button 
+                      type="button"
+                      className="button secondary" 
+                      onClick={() => {
+                        setEditingDomain(d._id);
+                        setEditingDomainName(d.name);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      type="button"
+                      className="button danger" 
+                      onClick={() => handleDeleteDomain(d._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="link-card" style={{ maxWidth: "500px" }}>
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-          <input type="text" placeholder="New Domain Name" value={newDomain} onChange={e => setNewDomain(e.target.value)} style={{ flexGrow: 1 }} />
-          <button className="header button" onClick={handleAddDomain}>Add Domain</button>
-        </div>
+      <div className="section-divider"></div>
+      
+      <h2 className="section-title">📎 Posts by Domain</h2>
+      
+      <div style={{ width: "100%", maxWidth: "700px" }}>
         {domains.map(d => (
-          <div key={d._id} style={{ marginTop: "0.75rem" }}>
-            {editingDomain === d._id ? (
-              <>
-                <input type="text" value={editingDomainName} onChange={e => setEditingDomainName(e.target.value)} />
-                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-                  <button className="header button" onClick={() => handleEditDomain(d._id)}>Save</button>
-                  <button className="header button" onClick={() => setEditingDomain(null)}>Cancel</button>
+          <div key={d._id} style={{ marginBottom: "var(--space-lg)" }}>
+            <div 
+              className="link-card"
+              style={{ 
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}
+              onClick={() => setExpandedDomains(prev => ({ ...prev, [d.name]: !prev[d.name] }))}
+            >
+              <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
+                📁 {d.name} ({groupedLinks[d.name]?.length || 0} posts)
+              </h3>
+              <span style={{ fontSize: "1.2rem" }}>
+                {expandedDomains[d.name] ? '▼' : '▶'}
+              </span>
+            </div>
+            {expandedDomains[d.name] && groupedLinks[d.name]?.length > 0 ? (
+              groupedLinks[d.name].map((link, idx) => (
+                <div 
+                  key={link._id} 
+                  className="link-card" 
+                  style={{ 
+                    marginTop: "var(--space-md)",
+                    animationDelay: `${idx * 0.1}s`
+                  }}
+                >
+                  <div>
+                    <h4 style={{ margin: "0 0 var(--space-sm) 0", color: "var(--text-primary)" }}>
+                      {link.title}
+                    </h4>
+                    <p style={{ margin: "0 0 var(--space-md) 0", color: "var(--text-secondary)" }}>
+                      {link.description}
+                    </p>
+                    
+                    <div style={{ display: "flex", gap: "var(--space-md)", flexWrap: "wrap", marginBottom: "var(--space-md)" }}>
+                      {link.fileUrl && (
+                        <a 
+                          href={link.fileUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="button secondary"
+                          style={{ textDecoration: "none" }}
+                        >
+                          📎 Download File
+                        </a>
+                      )}
+                      {link.url && (
+                        <a 
+                          href={link.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="button primary"
+                          style={{ textDecoration: "none" }}
+                        >
+                          🔗 Visit Link
+                        </a>
+                      )}
+                    </div>
+                    
+                    <div className="button-group" style={{ margin: 0, justifyContent: 'flex-end' }}>
+                      <button 
+                        type="button"
+                        className="button secondary" 
+                        onClick={() => handleEdit(link)}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        type="button"
+                        className="button danger" 
+                        onClick={() => handleDelete(link._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </>
-            ) : (
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>{d.name}</span>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button className="header button" onClick={() => {
-                    setEditingDomain(d._id);
-                    setEditingDomainName(d.name);
-                  }}>Edit</button>
-                  <button className="header button" style={{ backgroundColor: "#a31212" }} onClick={() => handleDeleteDomain(d._id)}>Delete</button>
-                </div>
+              ))
+            ) : expandedDomains[d.name] ? (
+              <div style={{ 
+                margin: "var(--space-md) 0", 
+                padding: "var(--space-lg)",
+                background: "var(--glass-bg)",
+                borderRadius: "var(--radius-lg)",
+                color: "var(--text-secondary)",
+                textAlign: "center"
+              }}>
+                No posts in this domain yet.
               </div>
-            )}
+            ) : null}
           </div>
         ))}
       </div>
-
-      <div className="section-title" style={{ marginTop: "2rem" }}>📎 Posts by Domain</div>
-      {domains.map(d => (
-        <div key={d._id} className="link-card" style={{ marginBottom: "1rem" }}>
-          <div onClick={() => toggleDomain(d.name)} style={{ cursor: "pointer", fontWeight: "bold", background: "#000000ff", padding: "0.5rem", borderRadius: "4px" }}>
-            {d.name} {expandedDomains[d.name] ? '▲' : '▼'}
-          </div>
-          {expandedDomains[d.name] && groupedLinks[d.name]?.length > 0 ? (
-            groupedLinks[d.name].map(link => (
-              <div key={link._id} className="link-card" style={{ marginTop: "0.5rem" }}>
-                <h3>{link.title}</h3>
-                <p>{link.description}</p>
-                {link.fileUrl && <a href={link.fileUrl} target="_blank" rel="noopener noreferrer">Download File</a>}
-                {link.url && <a href={link.url} target="_blank" rel="noopener noreferrer">{link.url}</a>}
-                <div style={{ marginTop: "0.75rem", display: "flex", gap: "0.5rem" }}>
-                  <button className="header button" onClick={() => handleEdit(link)}>Edit</button>
-                  <button className="header button" style={{ backgroundColor: "#a31212" }} onClick={() => handleDelete(link._id)}>Delete</button>
-                </div>
-              </div>
-            ))
-          ) : expandedDomains[d.name] ? (
-            <p style={{ margin: "0.5rem 0" }}>No posts in this domain.</p>
-          ) : null}
-        </div>
-      ))}
     </div>
   );
 }
